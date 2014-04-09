@@ -1,0 +1,5 @@
+To use getdata.py to convert MRT data to ASCII, first download and compile
+libbgpdump (link below). By default, getdata.py assumes the libbgpdump
+directory is located in the same directory as getdata.py itself.
+
+http://www.ris.ripe.net/source/bgpdump/libbgpdump-1.4.99.11.tar.gz
