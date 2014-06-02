@@ -22,8 +22,9 @@ do
 	# Build URL
 	if [[ $line == *://* ]]
 	then
-		line=$1"://"$(echo $line | awk -F "://" '{print $2}')
+		line=$(echo $line | awk -F "://" '{print $2}')
 	fi
+	line=$1"://"$line
 	
 	# Load page and wait
 	echo -e `date +%s`"\t$line" >> $LOG
