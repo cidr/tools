@@ -17,8 +17,8 @@ sys.path.append('../../tools/myplot')
 import myplot
 
 ADB = '/usr/bin/env adb'
-TCPDUMP = '/data/local/tmp/tcpdump_armv7'
-REMOTE_TRACEDIR = '/data/local/tmp/traces'
+TCPDUMP = '/data/local/tmp/tcpdump_armv7'   # location of tcpdump binary on phone
+REMOTE_TRACEDIR = '/data/local/tmp/traces'  # temp dir on phone for storing pcap traces
 TSHARK = '/usr/bin/env tshark'
 
 def sanitize_url(url):
@@ -66,31 +66,19 @@ def load_page(url, device, numtrials=10):
 
 
         ## click "Accept" on Chrome's agreement screen
-        #if not args.spdy:
-        #    try:
-        #        launch = '%s -s %s shell am start com.android.chrome' % (ADB, device)
-        #        tap = '%s -s %s shell input tap 200 750' % (ADB, device)
+        #try:
+        #    launch = '%s -s %s shell am start com.android.chrome' % (ADB, device)
+        #    tap = '%s -s %s shell input tap 200 750' % (ADB, device)
 
-        #        subprocess.check_output(launch.split())
-        #        time.sleep(6)
-        #        subprocess.check_output(tap.split())  # accept agreement
-        #        time.sleep(2)
-        #        subprocess.check_output(tap.split())  # don't sign in
-        #    except Exception as e:
-        #        logging.error('Error dismissing Chrome agreement. Skipping this trial. (%s)', e)
-        #        time.sleep(5)
-        #        continue
-
-
-        ## enable SPDY
-        #if args.spdy:
-        #    try:
-        #        tap = '%s -s %s shell input tap 200 750' % (ADB, device)
-        #        settings = '%s -s %s input keyevent 176' % (ADB, device)
-
-        #        subprocess.check_output(launch.split())
-        #        time.sleep(6)
-        #        subprocess.check_output(tap.split())  # accept agreement
+        #    subprocess.check_output(launch.split())
+        #    time.sleep(6)
+        #    subprocess.check_output(tap.split())  # accept agreement
+        #    time.sleep(2)
+        #    subprocess.check_output(tap.split())  # don't sign in
+        #except Exception as e:
+        #    logging.error('Error dismissing Chrome agreement. Skipping this trial. (%s)', e)
+        #    time.sleep(5)
+        #    continue
                 
 
 
@@ -123,7 +111,7 @@ def load_page(url, device, numtrials=10):
             logging.debug(cmd)
             subprocess.check_output(cmd.split())
 
-            # pause while page loads TODO: better way?
+            # pause while page loads TODO: can we find out when load is complete?
             time.sleep(15)
         except Exception as e:
             logging.error('Error loading page. Skipping this trial. (%s)', e)
