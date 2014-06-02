@@ -9,8 +9,19 @@ if [ "$#" -ne 2 ];
 fi
 
 echo -e `date +%s`"\t========== Script Launched: $0 $@ ==========" >> $LOG
-echo "First object loads in 30 seconds. Last object will be "`tail -1 $2`
-sleep 30
+echo "First object loads in 20 seconds. Last object will be "`tail -1 $2`
+sleep 20
+
+# dummy CPU activity to cause spikes in power reading
+for i in {0..2}
+do
+	for i in {0..9999}
+	do
+		echo $((13**99)) 1>/dev/null 2>&1
+	done
+	sleep 2
+done
+sleep 5
 
 while read line
 do
@@ -28,3 +39,14 @@ do
 	echo -e `date +%s`"\t$line" >> $LOG
 	$CURL --cacert /data/local/ssl/certs/ca-bundle.crt -o /dev/null $line
 done < $2
+
+# dummy CPU activity to cause spikes in power reading
+sleep 5
+for i in {0..2}
+do
+	for i in {0..9999}
+	do
+		echo $((13**99)) 1>/dev/null 2>&1
+	done
+	sleep 2
+done
