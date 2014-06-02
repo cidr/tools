@@ -13,7 +13,7 @@ import numpy
 from collections import defaultdict
 from multiprocessing import Pool
 
-sys.path.append('../../tools/myplot')
+sys.path.append('../myplot')
 import myplot
 
 ADB = '/usr/bin/env adb'
