@@ -59,3 +59,13 @@ Energy Usage
 ------------
 
 TODO
+
+### pt4 File Analysis
+
+The Monsoon Power Monitor saves logs in the `.pt4` format. In order to avoid
+CSV files (they take more space and take longer to export), we process the
+original .pt4 binary data. To do this, we use a [tool developed by
+Brown](https://github.com/brownsys/pt4utils). To download pt4utils:
+
+	git submodule init
+	git submodule update
