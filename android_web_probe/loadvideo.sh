@@ -2,6 +2,13 @@
 
 LOG=loadvideo.log
 
+source loadcommon.sh
+
+
+#
+# MAIN
+#
+
 if [ "$#" -ne 1 ]; 
     then echo -e "Please specify a YouTube URL:\n$0 url"
     exit 1
@@ -11,15 +18,7 @@ echo -e `date +%s`"\t========== Script Launched: $0 $@ ==========" >> $LOG
 echo "Video starts in 20 seconds."
 sleep 20
 
-# dummy CPU activity to cause spikes in power reading
-for i in {0..2}
-do
-	for i in {0..9999}
-	do
-		echo $((13**99)) 1>/dev/null 2>&1
-	done
-	sleep 2
-done
+signal_spikes
 sleep 5
 
 # Cleanup
@@ -40,11 +39,4 @@ sleep 95
 
 # dummy CPU activity to cause spikes in power reading
 sleep 5
-for i in {0..2}
-do
-	for i in {0..9999}
-	do
-		echo $((13**99)) 1>/dev/null 2>&1
-	done
-	sleep 2
-done
+signal_spikes
