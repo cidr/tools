@@ -55,6 +55,7 @@ def autolabel(rects, ax):
                 ha='center', va='bottom')
 
 def plot(xs, ys, labels=None, xlabel=None, ylabel=None, title=None,\
+         additional_ylabels=None, num_series_on_addl_y_axis=0,
          xlabel_size=24, ylabel_size=24,\
          marker='o', linestyles=None, legend='best', show_legend=True,\
          legend_cols=1,\
@@ -64,6 +65,7 @@ def plot(xs, ys, labels=None, xlabel=None, ylabel=None, title=None,\
          bar_width=0.35, label_bars=False, bar_padding=0, **kwargs):
      # TODO: split series and hist into two different functions?
      # TODO: change label font size back to 20
+     # TODO: clean up multiple axis stuff 
 
     #default_colors = ['b', 'g', 'r', 'c', 'm', 'y']
     default_colors = ['#348ABD', '#7A68A6', '#A60628', '#467821', '#CF4457', '#188487', '#E24A33']
@@ -78,6 +80,8 @@ def plot(xs, ys, labels=None, xlabel=None, ylabel=None, title=None,\
     if axis: plt.axis(axis)
     if xscale: ax.set_xscale(xscale)
     if yscale: ax.set_yscale(yscale)
+    lines = []
+
 
     show_legend = show_legend and labels != None
     if not labels: labels = ['']*len(xs)
@@ -95,9 +99,10 @@ def plot(xs, ys, labels=None, xlabel=None, ylabel=None, title=None,\
             linestyles.append(default_linestyles[i%len(default_linestyles)])
 
     if type == 'series':
-        for i in range(len(xs)):
-            plt.plot(xs[i], ys[i], linestyle=linestyles[i], marker=marker,\
+        for i in range(len(xs)-num_series_on_addl_y_axis):
+            line, = plt.plot(xs[i], ys[i], linestyle=linestyles[i], marker=marker,\
                 color=colors[i], label=labels[i], **kwargs)
+            lines.append(line)
             if yerrs:
                 plt.fill_between(xs[i], numpy.array(ys[i])+numpy.array(yerrs[i]),\
                 numpy.array(ys[i])-numpy.array(yerrs[i]), color=colors[i], alpha=0.5)
@@ -116,8 +121,26 @@ def plot(xs, ys, labels=None, xlabel=None, ylabel=None, title=None,\
     elif type == 'hist':
         plt.hist(xs, bins=bins, **kwargs)
 
+    # Additional axes?
+    if additional_ylabels:
+        addl_y_axes = []
+        for label in additional_ylabels:
+            new_ax = ax.twinx()
+            addl_y_axes.append(new_ax)
+            new_ax.set_ylabel(label, fontsize=ylabel_size)
+
+        # plot the extra series
+        for i in range(len(xs)-num_series_on_addl_y_axis, len(xs)):
+            # FIXME: index the correct addl y axis!
+            line, = addl_y_axes[0].plot(xs[i], ys[i], linestyle=linestyles[i], marker=marker,\
+                color=colors[i], label=labels[i], **kwargs)
+            lines.append(line)
+            if yerrs:
+                plt.fill_between(xs[i], numpy.array(ys[i])+numpy.array(yerrs[i]),\
+                numpy.array(ys[i])-numpy.array(yerrs[i]), color=colors[i], alpha=0.5)
+
     if show_legend and labels: 
-        ax.legend(loc=legend, ncol=legend_cols, prop={'size':legend_text_size})
+        ax.legend(lines, labels, loc=legend, ncol=legend_cols, prop={'size':legend_text_size})
     else:
         ax.legend_ = None  # TODO: hacky
 
