@@ -1,7 +1,6 @@
 #!/system/xbin/bash
 
 LOG=loadpages.log
-NUMTRIALS=100
 
 source loadcommon.sh
 
@@ -28,8 +27,8 @@ do
 	# Build URL
 	line=$(build_url $line $PROTOCOL)
 	
-	# Load the URL NUMTRIALS time
-	for i in {0..$NUMTRIALS}
+	# Load the URL 50 times
+	for i in {0..50}
 	do
 		# Cleanup
 		am kill-all   # kill all background procs
