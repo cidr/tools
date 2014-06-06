@@ -62,31 +62,54 @@ def main():
         https_duration.append(https_log.duration_seconds)
 
     myplot.plot([xsizes, xsizes, xsizes, xsizes],
-        [http_extra_energy, https_extra_energy, http_duration, https_duration],
-        labels=['HTTP Energy', 'HTTPS Energy', 'HTTP Time', 'HTTPS Time'],
+        [https_extra_energy, https_duration, http_extra_energy, http_duration],
+        labels=['HTTPS Energy', 'HTTPS Time', 'HTTP Energy', 'HTTP Time'],
+        colors=[0, 0, 1, 1], linestyles=['-', '--', '-', '--'],
+        axis_assignments=[0, 1, 0, 1],
         xlabel='File Size (KB)', ylabel='Energy Consumed (uAh)',
         num_series_on_addl_y_axis=2, additional_ylabels=['Time (s)'],
         xscale='log',
         filename=os.path.join(args.logdir, 'energy_consumption.pdf'))
+
+
 
     # average current
     http_mean_current = []
     https_mean_current = []
     http_stddev = []
     https_stddev = []
+    http_mean_current_per_byte = []
+    https_mean_current_per_byte = []
+    http_stddev_per_byte = []
+    https_stddev_per_byte = []
     for size in sizes:
         http_log = http_bytes_to_log[size]
         http_mean_current.append(http_log.mean_current - http_log.baseline)
         http_stddev.append(http_log.stddev_current)
+        http_mean_current_per_byte.append((http_log.mean_current - http_log.baseline) / float(size))
+        http_stddev_per_byte.append(http_log.stddev_current / float(size))
+
         https_log = https_bytes_to_log[size]
         https_mean_current.append(https_log.mean_current - https_log.baseline)
         https_stddev.append(https_log.stddev_current)
+        https_mean_current_per_byte.append((https_log.mean_current - https_log.baseline) / float(size))
+        https_stddev_per_byte.append(https_log.stddev_current / float(size))
     
-    myplot.plot([xsizes, xsizes], [http_mean_current, https_mean_current],
-        labels=['HTTP', 'HTTPS'], yerrs=[http_stddev, https_stddev],
+    # average current
+    myplot.plot([xsizes, xsizes], [https_mean_current, http_mean_current],
+        labels=['HTTPS', 'HTTP'], yerrs=[https_stddev, http_stddev],
+        linestyles=['-', '-'],
         xlabel='File Size (KB)', ylabel='Mean Current (mA)',
         xscale='log',
         filename=os.path.join(args.logdir, 'mean_current.pdf'))
+    
+    # average current per byte
+    myplot.plot([xsizes, xsizes], [https_mean_current_per_byte, http_mean_current_per_byte],
+        labels=['HTTPS', 'HTTP'], yerrs=[https_stddev_per_byte, http_stddev_per_byte],
+        linestyles=['-', '-'],
+        xlabel='File Size (KB)', ylabel='Mean Current per Byte (mA/B)',
+        xscale='log',
+        filename=os.path.join(args.logdir, 'mean_current_per_byte.pdf'))
     
 
 if __name__ == "__main__":
