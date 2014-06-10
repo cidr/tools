@@ -242,21 +242,36 @@ def compare_results(result_files):
         median_sizes.append(filename_to_size_median_dict[filename].values())
 
     # mean PLTs
-    myplot.cdf(mean_plts,
+    myplot.cdf(mean_plts, height_scale=0.7,
         xlabel='Mean Page Load Time (seconds)', labels=labels,
         filename=os.path.join(args.outdir, 'mean_plt.pdf'))
 
-    myplot.cdf(median_plts,
+    myplot.cdf(median_plts, height_scale=0.7,
         xlabel='Median Page Load Time (seconds)', labels=labels,
         filename=os.path.join(args.outdir, 'median_plt.pdf'))
     
-    myplot.cdf(mean_sizes,
-        xlabel='Mean Total Bytes Exchanged (MB)', labels=labels,
+    myplot.cdf(mean_sizes, height_scale=0.7,
+        xlabel='Mean Total Data Exchanged (MB)', labels=labels,
         filename=os.path.join(args.outdir, 'mean_size.pdf'))
 
-    myplot.cdf(median_sizes,
-        xlabel='Median Total Bytes Exchanged (MB)', labels=labels,
+    myplot.cdf(median_sizes, height_scale=0.7,
+        xlabel='Median Total Data Exchanged (MB)', labels=labels,
         filename=os.path.join(args.outdir, 'median_size.pdf'))
+
+
+    combined_sizes = []
+    combined_labels = []
+    for i in range(len(result_files)):
+        combined_sizes.append(mean_sizes[i])
+        combined_labels.append('%s (Mean)' % labels[i])
+        combined_sizes.append(median_sizes[i])
+        combined_labels.append('%s (Median)' % labels[i])
+
+    myplot.cdf(combined_sizes, height_scale=0.7,
+        xlabel='Total Data Exchanged (MB)', labels=combined_labels,
+        filename=os.path.join(args.outdir, 'size.pdf'))
+
+    
 
 
 def main():
