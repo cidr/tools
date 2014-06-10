@@ -57,7 +57,7 @@ def autolabel(rects, ax):
 def plot(xs, ys, labels=None, xlabel=None, ylabel=None, title=None,\
          additional_ylabels=None, num_series_on_addl_y_axis=0,\
          axis_assignments=None,\
-         xlabel_size=24, ylabel_size=24,\
+         xlabel_size=20, ylabel_size=20,\
          marker='o', linestyles=None, legend='best', show_legend=True,\
          legend_cols=1,\
          colors=None, axis=None, legend_text_size=20, filename=None,\
