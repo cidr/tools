@@ -24,6 +24,13 @@ def main():
         1000000:'1mb-http.csv',
         10000000:'10mb-http.csv',
     }
+    http_cache_bytes_to_log = {
+        1000:'1kb-http-cache.csv',
+        10000:'10kb-http-cache.csv',
+        100000:'100kb-http-cache.csv',
+        1000000:'1mb-http-cache.csv',
+        10000000:'10mb-http-cache.csv',
+    }
     https_bytes_to_log = {
         1000:'1kb-https.csv',
         10000:'10kb-https.csv',
@@ -32,11 +39,22 @@ def main():
         10000000:'10mb-https.csv',
     }
 
+
     # load files and make log objects
     for size in http_bytes_to_log:
         path = os.path.join(args.logdir, http_bytes_to_log[size])
         log = PowerMonitorLog(path)
         http_bytes_to_log[size] = log
+    
+    for size in http_bytes_to_log:
+        path = os.path.join(args.logdir, http_cache_bytes_to_log[size])
+
+        # do we have stats from cache load?
+        have_cache = os.path.exists(path)
+        if not have_cache: break
+
+        log = PowerMonitorLog(path)
+        http_cache_bytes_to_log[size] = log
     
     for size in https_bytes_to_log:
         path = os.path.join(args.logdir, https_bytes_to_log[size])
@@ -49,27 +67,45 @@ def main():
 
     # energy consumed
     http_extra_energy = []
+    http_cache_extra_energy = []
     https_extra_energy = []
     http_duration = []
+    http_cache_duration = []
     https_duration = []
     for size in sizes:
         http_log = http_bytes_to_log[size]
-        http_extra_energy.append(http_log.above_baseline_energy_uAh)
+        http_extra_energy.append(http_log.above_baseline_energy_uAh / 1000.0)  # uAh -> mAh
         http_duration.append(http_log.duration_seconds)
+        
+        if have_cache:
+            http_cache_log = http_cache_bytes_to_log[size]
+            http_cache_extra_energy.append(http_cache_log.above_baseline_energy_uAh / 1000.0)  # uAh -> mAh
+            http_cache_duration.append(http_cache_log.duration_seconds)
 
         https_log = https_bytes_to_log[size]
-        https_extra_energy.append(https_log.above_baseline_energy_uAh)
+        https_extra_energy.append(https_log.above_baseline_energy_uAh / 1000.0)  # uAh -> mAh
         https_duration.append(https_log.duration_seconds)
 
-    myplot.plot([xsizes, xsizes, xsizes, xsizes],
-        [https_extra_energy, https_duration, http_extra_energy, http_duration],
-        labels=['HTTPS Energy', 'HTTPS Time', 'HTTP Energy', 'HTTP Time'],
-        colors=[0, 0, 1, 1], linestyles=['-', '--', '-', '--'],
-        axis_assignments=[0, 1, 0, 1],
-        xlabel='File Size (KB)', ylabel='Energy Consumed (uAh)',
-        num_series_on_addl_y_axis=2, additional_ylabels=['Time (s)'],
-        xscale='log',
-        filename=os.path.join(args.logdir, 'energy_consumption.pdf'))
+    if have_cache:
+        myplot.plot([xsizes, xsizes, xsizes, xsizes, xsizes, xsizes],
+            [https_extra_energy, https_duration, http_extra_energy, http_duration, http_cache_extra_energy, http_cache_duration],
+            labels=['HTTPS Energy', 'HTTPS Time', 'HTTP Energy', 'HTTP Time', 'HTTP Cache Energy', 'HTTP Cache Time'],
+            colors=[0, 0, 1, 1, 2, 2], linestyles=['-', '--', '-', '--', '-', '--'],
+            axis_assignments=[0, 1, 0, 1, 0, 1],
+            xlabel='File Size (KB)', ylabel='Energy Consumed (mAh)',
+            num_series_on_addl_y_axis=2, additional_ylabels=['Time (s)'],
+            xscale='log', height_scale=0.85, legend_text_size=16,
+            filename=os.path.join(args.logdir, 'energy_consumption.pdf'))
+    else:
+        myplot.plot([xsizes, xsizes, xsizes, xsizes],
+            [https_extra_energy, https_duration, http_extra_energy, http_duration],
+            labels=['HTTPS Energy', 'HTTPS Time', 'HTTP Energy', 'HTTP Time'],
+            colors=[0, 0, 1, 1], linestyles=['-', '--', '-', '--'],
+            axis_assignments=[0, 1, 0, 1],
+            xlabel='File Size (KB)', ylabel='Energy Consumed (mAh)',
+            num_series_on_addl_y_axis=2, additional_ylabels=['Time (s)'],
+            xscale='log', height_scale=0.7,
+            filename=os.path.join(args.logdir, 'energy_consumption.pdf'))
 
 
 
@@ -100,7 +136,7 @@ def main():
         labels=['HTTPS', 'HTTP'], yerrs=[https_stddev, http_stddev],
         linestyles=['-', '-'],
         xlabel='File Size (KB)', ylabel='Mean Current (mA)',
-        xscale='log',
+        xscale='log', height_scale=0.7,
         filename=os.path.join(args.logdir, 'mean_current.pdf'))
     
     # average current per byte
@@ -108,7 +144,7 @@ def main():
         labels=['HTTPS', 'HTTP'], yerrs=[https_stddev_per_byte, http_stddev_per_byte],
         linestyles=['-', '-'],
         xlabel='File Size (KB)', ylabel='Mean Current per Byte (mA/B)',
-        xscale='log',
+        xscale='log', height_scale=0.7,
         filename=os.path.join(args.logdir, 'mean_current_per_byte.pdf'))
     
 
