@@ -74,37 +74,40 @@ def main():
     https_duration = []
     for size in sizes:
         http_log = http_bytes_to_log[size]
-        http_extra_energy.append(http_log.above_baseline_energy_uAh / 1000.0)  # uAh -> mAh
-        http_duration.append(http_log.duration_seconds)
+        http_extra_energy.append(http_log.above_baseline_energy_uAh / 1000.0 / 100.0)  # uAh -> mAh -> per object
+        http_duration.append(http_log.duration_seconds / 100.0)  # per object time, not total
         
         if have_cache:
             http_cache_log = http_cache_bytes_to_log[size]
-            http_cache_extra_energy.append(http_cache_log.above_baseline_energy_uAh / 1000.0)  # uAh -> mAh
-            http_cache_duration.append(http_cache_log.duration_seconds)
+            http_cache_extra_energy.append(http_cache_log.above_baseline_energy_uAh / 1000.0 / 100.0)  # uAh -> mAh -> per object
+            http_cache_duration.append(http_cache_log.duration_seconds / 100.0)  # per-object time, not total
 
         https_log = https_bytes_to_log[size]
-        https_extra_energy.append(https_log.above_baseline_energy_uAh / 1000.0)  # uAh -> mAh
-        https_duration.append(https_log.duration_seconds)
+        https_extra_energy.append(https_log.above_baseline_energy_uAh / 1000.0 / 100.0)  # uAh -> mAh -> per object
+        https_duration.append(https_log.duration_seconds / 100.0)  # per-object time, not total
 
     if have_cache:
         myplot.plot([xsizes, xsizes, xsizes, xsizes, xsizes, xsizes],
             [https_extra_energy, https_duration, http_extra_energy, http_duration, http_cache_extra_energy, http_cache_duration],
             labels=['HTTPS Energy', 'HTTPS Time', 'HTTP Energy', 'HTTP Time', 'HTTP Cache Energy', 'HTTP Cache Time'],
-            colors=[0, 0, 1, 1, 2, 2], linestyles=['-', '--', '-', '--', '-', '--'],
+            colors=['red', 'red', 'black', 'black', 'green', 'green'], linestyles=['-', '--', '-', '--', '-', '--'],
             axis_assignments=[0, 1, 0, 1, 0, 1],
-            xlabel='File Size (KB)', ylabel='Energy Consumed (mAh)',
-            num_series_on_addl_y_axis=2, additional_ylabels=['Time (s)'],
+            xlabel='File Size (kB)', ylabel='Energy per Object (mAh)',
+            num_series_on_addl_y_axis=2, additional_ylabels=['Time per Object (s)'],
             xscale='log', height_scale=0.85, legend_text_size=16,
+            legend='upper left',
+            ylim=(0, 1.8), additional_ylims=[(0, 35)],
             filename=os.path.join(args.logdir, 'energy_consumption.pdf'))
     else:
         myplot.plot([xsizes, xsizes, xsizes, xsizes],
             [https_extra_energy, https_duration, http_extra_energy, http_duration],
             labels=['HTTPS Energy', 'HTTPS Time', 'HTTP Energy', 'HTTP Time'],
-            colors=[0, 0, 1, 1], linestyles=['-', '--', '-', '--'],
+            colors=['red', 'red', 'black', 'black'], linestyles=['-', '--', '-', '--'],
             axis_assignments=[0, 1, 0, 1],
-            xlabel='File Size (KB)', ylabel='Energy Consumed (mAh)',
-            num_series_on_addl_y_axis=2, additional_ylabels=['Time (s)'],
-            xscale='log', height_scale=0.7,
+            xlabel='File Size (kB)', ylabel='Energy per Object (mAh)',
+            num_series_on_addl_y_axis=2, additional_ylabels=['Time per Object (s)'],
+            legend='upper left',
+            xscale='log', height_scale=0.7, ylim=(0, 1.8), additional_ylims=[(0, 35)],
             filename=os.path.join(args.logdir, 'energy_consumption.pdf'))
 
 
@@ -134,16 +137,16 @@ def main():
     # average current
     myplot.plot([xsizes, xsizes], [https_mean_current, http_mean_current],
         labels=['HTTPS', 'HTTP'], yerrs=[https_stddev, http_stddev],
-        linestyles=['-', '-'],
-        xlabel='File Size (KB)', ylabel='Mean Current (mA)',
+        linestyles=['-', '-'], colors=['red', 'black'],
+        xlabel='File Size (kB)', ylabel='Mean Current (mA)',
         xscale='log', height_scale=0.7,
         filename=os.path.join(args.logdir, 'mean_current.pdf'))
     
     # average current per byte
     myplot.plot([xsizes, xsizes], [https_mean_current_per_byte, http_mean_current_per_byte],
         labels=['HTTPS', 'HTTP'], yerrs=[https_stddev_per_byte, http_stddev_per_byte],
-        linestyles=['-', '-'],
-        xlabel='File Size (KB)', ylabel='Mean Current per Byte (mA/B)',
+        linestyles=['-', '-'], colors=['red', 'black'],
+        xlabel='File Size (kB)', ylabel='Mean Current per Byte (mA/B)',
         xscale='log', height_scale=0.7,
         filename=os.path.join(args.logdir, 'mean_current_per_byte.pdf'))
     
