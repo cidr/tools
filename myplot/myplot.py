@@ -1,7 +1,7 @@
-import matplotlib
-import numpy as np
+import matplotlib  # TODO :needed?
+import numpy as np # import needed?
 matplotlib.use('PDF')  # save plots as PDF
-font = {'size'   : 20}
+font = {'size'   : 16}
 matplotlib.rc('font', **font)
 
 # use type 1 fonts
@@ -56,20 +56,21 @@ def autolabel(rects, ax):
 
 def plot(xs, ys, labels=None, xlabel=None, ylabel=None, title=None,\
          additional_ylabels=None, num_series_on_addl_y_axis=0,\
-         axis_assignments=None,\
-         xlabel_size=20, ylabel_size=20,\
+         axis_assignments=None, additional_ylims=None,\
+         xlabel_size=16, ylabel_size=16,\
          marker='o', linestyles=None, legend='best', show_legend=True,\
          legend_cols=1,\
-         colors=None, axis=None, legend_text_size=20, filename=None,\
+         colors=None, axis=None, legend_text_size=16, filename=None,\
          xscale=None, yscale=None, type='series', bins=10, yerrs=None,\
-         width_scale=1, height_scale=1,\
+         width_scale=1, height_scale=1, xlim=None, ylim=None,\
          bar_width=0.35, label_bars=False, bar_padding=0, **kwargs):
      # TODO: split series and hist into two different functions?
      # TODO: change label font size back to 20
      # TODO: clean up multiple axis stuff 
+     # TODO: legend loc, replace 'bottom' with lower and 'top' with 'upper'
 
-    #default_colors = ['b', 'g', 'r', 'c', 'm', 'y']
-    default_colors = ['#348ABD', '#7A68A6', '#A60628', '#467821', '#CF4457', '#188487', '#E24A33']
+    default_colors = ['b', 'g', 'r', 'c', 'm', 'y']
+    #default_colors = ['#348ABD', '#7A68A6', '#A60628', '#467821', '#CF4457', '#188487', '#E24A33']
     default_linestyles = ['-', '--', '-.', ':']
     
     fig, ax = plt.subplots()
@@ -81,6 +82,8 @@ def plot(xs, ys, labels=None, xlabel=None, ylabel=None, title=None,\
     if axis: plt.axis(axis)
     if xscale: ax.set_xscale(xscale)
     if yscale: ax.set_yscale(yscale)
+    if xlim: plt.xlim(xlim)
+    if ylim: plt.ylim(ylim)
     lines = [None]*len(xs)
 
     show_legend = show_legend and labels != None
@@ -130,6 +133,8 @@ def plot(xs, ys, labels=None, xlabel=None, ylabel=None, title=None,\
             new_ax = ax.twinx()
             addl_y_axes.append(new_ax)
             new_ax.set_ylabel(label, fontsize=ylabel_size)
+            if additional_ylims:
+                new_ax.set_ylim(additional_ylims[0])  # TODO: use real index!
 
         # plot the extra series
         for i in range(len(xs)):
@@ -155,6 +160,37 @@ def plot(xs, ys, labels=None, xlabel=None, ylabel=None, title=None,\
     else:
         plt.savefig(filename)
 
+# TODO: make this handle more than red/green...
+# TODO: merge this with plot()
+def heatmap(matrix, xlabel=None, ylabel=None, filename=None):
+
+    plt.pcolor(np.array(matrix), cmap='RdYlGn')
+    if xlabel: plt.xlabel(xlabel)
+    if ylabel: plt.ylabel(ylabel)
+    
+    # make sure no text is clipped along the boundaries
+    plt.tight_layout()
+
+    # FIXME hardcoded stuff that shouldn't be
+    plt.tick_params(\
+        axis='x',          # changes apply to the x-axis
+        which='both',      # both major and minor ticks are affected
+        bottom='off',      # ticks along the bottom edge are off
+        top='off',         # ticks along the top edge are off
+        labelbottom='off') # labels along the bottom edge are off
+    plt.tick_params(\
+        axis='y',          # changes apply to the x-axis
+        which='both',      # both major and minor ticks are affected
+        left='off',
+        right='off',
+        labelleft='off')
+
+
+    if filename == None:
+        plt.show()
+    else:
+        plt.savefig(filename)
+
 def cdf(data, numbins=None, **kwargs):
     '''Wrapper for making CDFs'''
     xs = []
@@ -170,11 +206,16 @@ def cdf(data, numbins=None, **kwargs):
 
 def main():
 
-    # test cdf
-    data = [1, 2, 3, 4, 5, 6]
+    ## test cdf
+    #data = [1, 2, 3, 4, 5, 6]
 
-    y_vals, x_vals = cdf_vals_from_data(data)
-    plot(y_vals, x_vals, 'cdf')
+    #y_vals, x_vals = cdf_vals_from_data(data)
+    #plot(y_vals, x_vals, 'cdf')
+
+    # test heatmap
+    matrix = [[1, 0, 1], [1, 0, 1], [0, 0, 1]]
+    heatmap(matrix, xlabel='App Policies', ylabel='User Policies',\
+        filename="/Users/dnaylor/Desktop/heatmap.pdf")
 
 if __name__ == '__main__':
     main()
