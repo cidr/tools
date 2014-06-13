@@ -236,7 +236,7 @@ def compare_results(result_files):
     labels = []
     for filename in result_files:
         name = os.path.splitext(os.path.split(filename)[1])[0]
-        labels.append(string.replace(string.replace(name, 'SPDY', 'SPDY Proxy'), 'NoProxy', 'No Proxy'))
+        labels.append(string.replace(string.replace(name, 'SPDY', 'Compression Proxy'), 'NoProxy', 'No Proxy'))
         mean_plts.append(filename_to_plt_mean_dict[filename].values())
         median_plts.append(filename_to_plt_median_dict[filename].values())
         mean_sizes.append(filename_to_size_mean_dict[filename].values())
