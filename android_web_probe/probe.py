@@ -9,6 +9,7 @@ import argparse
 import subprocess
 import cPickle
 import time
+import string
 import numpy
 from collections import defaultdict
 from multiprocessing import Pool
@@ -235,7 +236,7 @@ def compare_results(result_files):
     labels = []
     for filename in result_files:
         name = os.path.splitext(os.path.split(filename)[1])[0]
-        labels.append(name)
+        labels.append(string.replace(string.replace(name, 'SPDY', 'SPDY Proxy'), 'NoProxy', 'No Proxy'))
         mean_plts.append(filename_to_plt_mean_dict[filename].values())
         median_plts.append(filename_to_plt_median_dict[filename].values())
         mean_sizes.append(filename_to_size_mean_dict[filename].values())
@@ -252,10 +253,12 @@ def compare_results(result_files):
     
     myplot.cdf(mean_sizes, height_scale=0.7,
         xlabel='Mean Total Data Exchanged (MB)', labels=labels,
+        xlim=(0, 5),
         filename=os.path.join(args.outdir, 'mean_size.pdf'))
 
     myplot.cdf(median_sizes, height_scale=0.7,
         xlabel='Median Total Data Exchanged (MB)', labels=labels,
+        xlim=(0, 5),
         filename=os.path.join(args.outdir, 'median_size.pdf'))
 
 
@@ -269,6 +272,7 @@ def compare_results(result_files):
 
     myplot.cdf(combined_sizes, height_scale=0.7,
         xlabel='Total Data Exchanged (MB)', labels=combined_labels,
+        xlim=(0, 5),
         filename=os.path.join(args.outdir, 'size.pdf'))
 
     
