@@ -271,8 +271,8 @@ def compare_results(result_files):
         combined_labels.append('%s (Median)' % labels[i])
 
     myplot.cdf(combined_sizes, height_scale=0.7,
-        xlabel='Total Data Exchanged (MB)', labels=combined_labels,
-        xlim=(0, 5),
+        xlabel='Total Data Exchanged [MB]', labels=combined_labels,
+        xlim=(0, 5), labelspacing=0.1, handletextpad=0.4,
         filename=os.path.join(args.outdir, 'size.pdf'))
 
     
