@@ -1,7 +1,9 @@
 import matplotlib  # TODO :needed?
 import numpy as np # import needed?
 matplotlib.use('PDF')  # save plots as PDF
-font = {'size'   : 16}
+font = {'size': 20,
+        'serif': 'Times New Roman',
+        'family': 'serif'}
 matplotlib.rc('font', **font)
 
 # use type 1 fonts
@@ -54,40 +56,61 @@ def autolabel(rects, ax):
         ax.text(rect.get_x()+rect.get_width()/2., 1.05*height, '%d'%int(height),
                 ha='center', va='bottom')
 
+def subplots(num_row, num_col, width_scale=1, height_scale=1):
+    # TODO: anything helpful we could do here?
+    fig, ax_array = plt.subplots(num_row, num_col)
+    width, height = fig.get_size_inches()
+    fig.set_size_inches(width*width_scale, height*height_scale)
+    return fig, ax_array
+
+def save_plot(filename):
+    #plt.tight_layout()
+    plt.savefig(filename)
+
 def plot(xs, ys, labels=None, xlabel=None, ylabel=None, title=None,\
          additional_ylabels=None, num_series_on_addl_y_axis=0,\
          axis_assignments=None, additional_ylims=None,\
-         xlabel_size=16, ylabel_size=16,\
+         xlabel_size=20, ylabel_size=20, labelspacing=0.2, handletextpad=0.5,\
          marker='o', linestyles=None, legend='best', show_legend=True,\
-         legend_cols=1,\
-         colors=None, axis=None, legend_text_size=16, filename=None,\
+         legend_cols=1, linewidths=None, legend_border=False,\
+         colors=None, axis=None, legend_text_size=20, filename=None,\
          xscale=None, yscale=None, type='series', bins=10, yerrs=None,\
          width_scale=1, height_scale=1, xlim=None, ylim=None,\
-         bar_width=0.35, label_bars=False, bar_padding=0, **kwargs):
+         bar_width=0.35, label_bars=False, bar_padding=0,\
+         show_y_tick_labels=True, show_x_tick_labels=True,\
+         fig=None, ax=None,\
+         **kwargs):
      # TODO: split series and hist into two different functions?
      # TODO: change label font size back to 20
      # TODO: clean up multiple axis stuff 
      # TODO: legend loc, replace 'bottom' with lower and 'top' with 'upper'
+     # TODO: what is the default labelspacing?
 
     default_colors = ['b', 'g', 'r', 'c', 'm', 'y']
     #default_colors = ['#348ABD', '#7A68A6', '#A60628', '#467821', '#CF4457', '#188487', '#E24A33']
     default_linestyles = ['-', '--', '-.', ':']
     
-    fig, ax = plt.subplots()
-    width, height = fig.get_size_inches()
-    fig.set_size_inches(width*width_scale, height*height_scale)
-    if xlabel: plt.xlabel(xlabel, fontsize=xlabel_size)
-    if ylabel: plt.ylabel(ylabel, fontsize=ylabel_size)
-    if title: plt.title(title)
-    if axis: plt.axis(axis)
+    # if we want to do subplots, caller may have passed in an existing figure
+    if not fig or not ax:
+        fig, ax = plt.subplots()
+        width, height = fig.get_size_inches()
+        fig.set_size_inches(width*width_scale, height*height_scale)
+
+    if xlabel: ax.set_xlabel(xlabel, fontsize=xlabel_size)
+    if ylabel: ax.set_ylabel(ylabel, fontsize=ylabel_size)
+    if not show_x_tick_labels: ax.set_xticklabels([])
+    if not show_y_tick_labels: ax.set_yticklabels([])
+    if title: ax.set_title(title)
+    if axis: ax.set_axis(axis)
     if xscale: ax.set_xscale(xscale)
     if yscale: ax.set_yscale(yscale)
-    if xlim: plt.xlim(xlim)
-    if ylim: plt.ylim(ylim)
+    if xlim: ax.set_xlim(xlim)
+    if ylim: ax.set_ylim(ylim)
     lines = [None]*len(xs)
 
     show_legend = show_legend and labels != None
     if not labels: labels = ['']*len(xs)
+    if not linewidths: linewidths = [3]*len(xs)
     if not axis_assignments: axis_assignments = [0]*len(xs)
     if not colors:
         colors = []
@@ -105,11 +128,11 @@ def plot(xs, ys, labels=None, xlabel=None, ylabel=None, title=None,\
     if type == 'series':
         for i in range(len(xs)):
             if axis_assignments[i] != 0: continue
-            line, = plt.plot(xs[i], ys[i], linestyle=linestyles[i], marker=marker,\
-                color=colors[i], label=labels[i], **kwargs)
+            line, = ax.plot(xs[i], ys[i], linestyle=linestyles[i], marker=marker,\
+                linewidth=linewidths[i], color=colors[i], label=labels[i], **kwargs)
             lines[i] = line
             if yerrs:
-                plt.fill_between(xs[i], numpy.array(ys[i])+numpy.array(yerrs[i]),\
+                ax.fill_between(xs[i], numpy.array(ys[i])+numpy.array(yerrs[i]),\
                 numpy.array(ys[i])-numpy.array(yerrs[i]), color=colors[i], alpha=0.5)
     elif type == 'bar':
         color_squares = []
@@ -124,7 +147,7 @@ def plot(xs, ys, labels=None, xlabel=None, ylabel=None, title=None,\
         ax.set_xlim(0, ind[-1]+(len(xs))*bar_width+bar_padding)
         if labels: ax.legend(color_squares, labels)
     elif type == 'hist':
-        plt.hist(xs, bins=bins, **kwargs)
+        ax.hist(xs, bins=bins, **kwargs)
 
     # Additional axes?
     if additional_ylabels:
@@ -133,6 +156,7 @@ def plot(xs, ys, labels=None, xlabel=None, ylabel=None, title=None,\
             new_ax = ax.twinx()
             addl_y_axes.append(new_ax)
             new_ax.set_ylabel(label, fontsize=ylabel_size)
+            #new_ax.set_yticklabels([]) # temp
             if additional_ylims:
                 new_ax.set_ylim(additional_ylims[0])  # TODO: use real index!
 
@@ -144,21 +168,23 @@ def plot(xs, ys, labels=None, xlabel=None, ylabel=None, title=None,\
                 color=colors[i], label=labels[i], **kwargs)
             lines[i] = line
             if yerrs:
-                plt.fill_between(xs[i], numpy.array(ys[i])+numpy.array(yerrs[i]),\
+                addl_y_axes[0].fill_between(xs[i], numpy.array(ys[i])+numpy.array(yerrs[i]),\
                 numpy.array(ys[i])-numpy.array(yerrs[i]), color=colors[i], alpha=0.5)
 
     if show_legend and labels: 
-        ax.legend(lines, labels, loc=legend, ncol=legend_cols, prop={'size':legend_text_size})
+        ax.legend(lines, labels, loc=legend, ncol=legend_cols, frameon=legend_border,\
+            labelspacing=labelspacing, handletextpad=handletextpad, prop={'size':legend_text_size})
     else:
         ax.legend_ = None  # TODO: hacky
 
     # make sure no text is clipped along the boundaries
     plt.tight_layout()
 
-    if filename == None:
-        plt.show()
-    else:
+    if filename:
         plt.savefig(filename)
+    #plt.show()
+
+    return lines, labels  # making an overall figure legend
 
 # TODO: make this handle more than red/green...
 # TODO: merge this with plot()
@@ -199,7 +225,7 @@ def cdf(data, numbins=None, **kwargs):
         y, x = cdf_vals_from_data(d, numbins)
         xs.append(x)
         ys.append(y)
-    plot(xs, ys, ylabel='CDF', marker=None, **kwargs)
+    return plot(xs, ys, ylabel='CDF', marker=None, **kwargs)
     
 
 
