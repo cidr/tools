@@ -106,15 +106,15 @@ def plot(xs, ys, labels=None, xlabel=None, ylabel=None, title=None,\
     if yscale: ax.set_yscale(yscale)
     if xlim: ax.set_xlim(xlim)
     if ylim: ax.set_ylim(ylim)
-    lines = [None]*len(xs)
+    lines = [None]*len(ys)
 
     show_legend = show_legend and labels != None
-    if not labels: labels = ['']*len(xs)
-    if not linewidths: linewidths = [3]*len(xs)
-    if not axis_assignments: axis_assignments = [0]*len(xs)
+    if not labels: labels = ['']*len(ys)
+    if not linewidths: linewidths = [3]*len(ys)
+    if not axis_assignments: axis_assignments = [0]*len(ys)
     if not colors:
         colors = []
-        for i in range(len(xs)):
+        for i in range(len(ys)):
             colors.append(default_colors[i%len(default_colors)])
     else:
         for i in range(len(colors)):
@@ -122,11 +122,11 @@ def plot(xs, ys, labels=None, xlabel=None, ylabel=None, title=None,\
                 colors[i] = default_colors[colors[i]]
     if not linestyles:
         linestyles = []
-        for i in range(len(xs)):
+        for i in range(len(ys)):
             linestyles.append(default_linestyles[i%len(default_linestyles)])
 
     if type == 'series':
-        for i in range(len(xs)):
+        for i in range(len(ys)):
             if axis_assignments[i] != 0: continue
             line, = ax.plot(xs[i], ys[i], linestyle=linestyles[i], marker=marker,\
                 linewidth=linewidths[i], color=colors[i], label=labels[i], **kwargs)
@@ -136,18 +136,21 @@ def plot(xs, ys, labels=None, xlabel=None, ylabel=None, title=None,\
                 numpy.array(ys[i])-numpy.array(yerrs[i]), color=colors[i], alpha=0.5)
     elif type == 'bar':
         color_squares = []
-        for i in range(len(xs)):
-            N = len(xs[i])
+        for i in range(len(ys)):
+            N = len(ys[i])
             ind = np.arange(N) + bar_padding
             rects = ax.bar(ind + i*bar_width, ys[i], bar_width)
             color_squares.append(rects[0])
             if label_bars: autolabel(rects, ax)
-        ax.set_xticks(ind + len(xs)/2.0*bar_width)
+        ax.set_xticks(ind + len(ys)/2.0*bar_width)
         ax.set_xticklabels(xs[0], rotation=25)
-        ax.set_xlim(0, ind[-1]+(len(xs))*bar_width+bar_padding)
+        ax.set_xlim(0, ind[-1]+(len(ys))*bar_width+bar_padding)
         if labels: ax.legend(color_squares, labels)
     elif type == 'hist':
         ax.hist(xs, bins=bins, **kwargs)
+    elif type == 'stackplot':
+        lines = ax.stackplot(xs, ys)
+        ax.set_xticks(np.arange(min(xs), max(xs)+1, 1.0))
 
     # Additional axes?
     if additional_ylabels:
@@ -161,7 +164,7 @@ def plot(xs, ys, labels=None, xlabel=None, ylabel=None, title=None,\
                 new_ax.set_ylim(additional_ylims[0])  # TODO: use real index!
 
         # plot the extra series
-        for i in range(len(xs)):
+        for i in range(len(ys)):
             # FIXME: index the correct addl y axis!
             if axis_assignments[i] != 1: continue
             line, = addl_y_axes[0].plot(xs[i], ys[i], linestyle=linestyles[i], marker=marker,\
@@ -172,8 +175,11 @@ def plot(xs, ys, labels=None, xlabel=None, ylabel=None, title=None,\
                 numpy.array(ys[i])-numpy.array(yerrs[i]), color=colors[i], alpha=0.5)
 
     if show_legend and labels: 
+        if type == 'stackplot':
+            lines = [matplotlib.patches.Rectangle((0,0), 0,0, facecolor=pol.get_facecolor()[0]) for pol in lines]
         ax.legend(lines, labels, loc=legend, ncol=legend_cols, frameon=legend_border,\
             labelspacing=labelspacing, handletextpad=handletextpad, prop={'size':legend_text_size})
+            
     else:
         ax.legend_ = None  # TODO: hacky
 
@@ -226,6 +232,17 @@ def cdf(data, numbins=None, **kwargs):
         xs.append(x)
         ys.append(y)
     return plot(xs, ys, ylabel='CDF', marker=None, **kwargs)
+
+def stackplot(ys, sortindex=-1, **kwargs):
+    '''Wrapper for making stackplots'''
+
+    # sort, maybe
+    if sortindex >= 0:
+        ys = zip(*sorted(zip(*ys), key=lambda x: x[sortindex]))
+
+    x = np.arange(len(ys[0]))
+
+    return plot(x, ys, type='stackplot', **kwargs)
     
 
 
@@ -238,10 +255,16 @@ def main():
     #y_vals, x_vals = cdf_vals_from_data(data)
     #plot(y_vals, x_vals, 'cdf')
 
-    # test heatmap
-    matrix = [[1, 0, 1], [1, 0, 1], [0, 0, 1]]
-    heatmap(matrix, xlabel='App Policies', ylabel='User Policies',\
-        filename="/Users/dnaylor/Desktop/heatmap.pdf")
+    ## test heatmap
+    #matrix = [[1, 0, 1], [1, 0, 1], [0, 0, 1]]
+    #heatmap(matrix, xlabel='App Policies', ylabel='User Policies',\
+    #    filename="/Users/dnaylor/Desktop/heatmap.pdf")
+
+    # test stackplot
+    y1 = [3, 1, 7, 5]
+    y2 = [1, 2, 3, 4]
+    y3 = [4, 9, 8, 3]
+    stackplot([y1, y2, y3], sortindex=0, filename='/Users/dnaylor/Desktop/stackplot.pdf')
 
 if __name__ == '__main__':
     main()
