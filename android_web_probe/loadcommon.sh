@@ -1,3 +1,19 @@
+TCPDUMP=/data/local/tmp/tcpdump_armv7
+
+# start tcpdump. 
+# 	$1 = the output pcap file path
+start_tcpdump()
+{
+	su -c "$TCPDUMP -i rmnet0 -w $1" &
+}
+
+# stop tcpdump
+stop_tcpdump()
+{
+	su -c "killall tcpdump_armv7"
+}
+
+
 # dummy CPU activity to cause spikes in power reading
 signal_spikes()
 {

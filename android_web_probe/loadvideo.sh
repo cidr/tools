@@ -1,6 +1,7 @@
 #!/system/xbin/bash
 
 LOG=loadvideo.log
+PCAP=/data/local/tmp/video.pcap
 
 source loadcommon.sh
 
@@ -22,20 +23,31 @@ signal_spikes
 sleep 5
 
 # Cleanup
-am kill-all   # kill all background procs
 am force-stop com.android.chrome  # stop Chrome
 su -c "rm -rf /data/data/com.android.chrome/cache"  # clear Chrome cache
 su -c "rm -rf /data/data/com.android.chrome/files"  # close Chrome tabs
 
+# Start tcpdump
+start_tcpdump $PCAP
+
 # Load page
 echo -e `date +%s`"\t$1" >> $LOG
 am start -a android.intent.action.VIEW -d $1 com.android.chrome
-sleep 15
+sleep 20
 
 # "click" to play video
-echo -e `date +%s`"Clicked play" >> $LOG
-input tap 200 240
-sleep 95
+input tap 10 335
+sleep 1
+input tap 25 300
+sleep 1
+input tap 10 335
+sleep 1
+input tap 25 300
+echo -e `date +%s`"\tClicked play" >> $LOG
+sleep 65
+
+# stop tcpdump
+stop_tcpdump
 
 # dummy CPU activity to cause spikes in power reading
 sleep 5
