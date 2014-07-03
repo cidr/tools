@@ -1,10 +1,11 @@
 TCPDUMP=/data/local/tmp/tcpdump_armv7
 
 # start tcpdump. 
-# 	$1 = the output pcap file path
+# 	$1 = interface
+# 	$2 = the output pcap file path
 start_tcpdump()
 {
-	su -c "$TCPDUMP -i rmnet0 -w $1" &
+	su -c "$TCPDUMP -i $1 -w $2" &
 }
 
 # stop tcpdump
