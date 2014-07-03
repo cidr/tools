@@ -118,7 +118,7 @@ elif [ $CLOSE_AFTER -gt 0 ]; then
 	sleep $(($DURATION - $CLOSE_AFTER))
 
 else
-	echo "Sleeping "$DURATION
+	sleep $DURATION
 fi
 
 # stop tcpdump
