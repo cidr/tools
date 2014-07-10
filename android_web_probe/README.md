@@ -107,12 +107,16 @@ disconnected.
 
 		./loadvideo.sh -i rmnet0 -v -m http://vimeo.com/66355682 324 &
 
-### pt4 File Analysis
+### Power Monitor Analysis
 
-The Monsoon Power Monitor saves logs in the `.pt4` format. In order to avoid
-CSV files (they take more space and take longer to export), we process the
-original .pt4 binary data. To do this, we use a [tool developed by
+The Monsoon Power Monitor can save logs in its own `.pt4` format or as CSV
+files; our analysis script can process either.  To process the original .pt4
+binary data, we use a [tool developed by
 Brown](https://github.com/brownsys/pt4utils). To download pt4utils:
 
 	git submodule init
 	git submodule update
+
+To analyze power monitor logs:
+
+	./analyze.py log1 [log2 ...]
