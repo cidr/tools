@@ -58,7 +58,54 @@ For more options/help, run `./probe.py -h`.
 Energy Usage
 ------------
 
-TODO
+Since the USB cable can't be connected during energy measurements, the scripts
+driving energy experiments can't rely on ADB. Instead, we use bash scripts
+which are launched as background process using an ADB shell, at which point the
+USB cable can be disconnected. There are three scripts, one each for loading
+Web objects, Web pages, and playing videos. 
+
+The scripts share common utility code in `loadcommon.sh`. Each one logs its
+activity to a file named identically to the script but with a `.log` extension
+in place of `.sh`.  Each script begins and ends with three bursts of dummy CPU
+activity, causing spikes to appear in the energy plot, framing the experiment
+like bookends.  The scripts must be run in the background (e.g., using `&`) to
+prevent them from being killed when the ADB shell dies when the USB cable is
+disconnected.
+
+1.	Objects
+
+	TODO
+
+2. 	Pages
+
+	TODO
+
+3.	Videos
+
+	`loadvideo.sh` plays a video from YouTube or Vimeo while simultaneously
+	capturing a PCAP (this requires a binary of tcpdump for Android; the path
+	to this binary must be set in `loadcommon.sh`). Usage:
+
+		./loadvideo.sh [options] <video URL> <duration>
+
+	The `<duration>` is the number of seconds the script should wait before
+	terminating the PCAP (e.g., the length of the video plus a small amount of
+	slack).
+
+	Options:
+
+	* `-v`: Video is from Vimeo (if not set, defaults to YouTube)
+	* `-m`: Use the mobile version of the site (default is desktop). (NOTE:
+	This flag does NOT set the user agent to force the browser to use the
+	mobile site; you must do this manually. This flag only tells the script
+	where on the screen it can find the Play button.)
+	* `-i <interface>`: Interface for packet capture
+	* `-p <seconds>`: Pause video after `<seconds>` seconds.
+	* `-c <seconds>`: Close browser after `<seconds>` seconds.
+
+	Example usage:
+
+		./loadvideo.sh -i rmnet0 -v -m http://vimeo.com/66355682 324 &
 
 ### pt4 File Analysis
 
