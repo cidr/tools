@@ -74,11 +74,27 @@ disconnected.
 
 1.	Objects
 
-	TODO
+	`loadobjects.sh` loads individual objects using [curl for
+	Android](http://curl.haxx.se/download.html). If the object is HTML,
+	subresources are not loaded. Usage:
+
+		./loadobjects.sh <protocol> <url file>
+
+	`<protocol>` should be either "http" or "https". `<url file>` should be a
+	text file containing a list of URLs, one per line. Each URL is loaded 100
+	times using `<protocol>` (regardless of the protocol specified in the URL).
+
 
 2. 	Pages
+	
+	`loadpages.sh` loads web pages using Chrome for Android.  Usage:
 
-	TODO
+		./loadpages.sh <protocol> <url file>
+
+	`<protocol>` should be either "http" or "https". `<url file>` should be a
+	text file containing a list of URLs, one per line. Each URL is loaded 100
+	times using `<protocol>` (regardless of the protocol specified in the URL).
+
 
 3.	Videos
 
