@@ -10,6 +10,7 @@ IFACE="rmnet0"
 MOBILE=0
 PAUSE_AFTER=0
 CLOSE_AFTER=0
+VIMEO=0
 
 
 #
@@ -19,8 +20,11 @@ setup()
 {
 	local OPTARG=$2
 
-	while getopts "mi:p:c:" opt; do
+	while getopts "vmi:p:c:" opt; do
 		case $opt in
+			v)
+				VIMEO=1
+				;;
 			m)
 				MOBILE=1
 				;;
@@ -77,18 +81,28 @@ am start -a android.intent.action.VIEW -d $URL com.android.chrome
 sleep 20
 
 # "click" to play video
-if [ $MOBILE -eq 1 ]; then
-	# mobile site
-	input tap 200 250
-else
-	# desktop site
-	input tap 10 335
-	sleep 1
-	input tap 25 300
-	sleep 1
-	input tap 10 335
-	sleep 1
-	input tap 25 300
+if [ $VIMEO -eq 1 ]; then # Vimeo
+	if [ $MOBILE -eq 1 ]; then
+		# mobile site
+		input tap 200 300
+	else
+		# desktop site
+		echo "No support for Vimeo desktop site" >> $LOG
+	fi
+else # YouTube
+	if [ $MOBILE -eq 1 ]; then
+		# mobile site
+		input tap 200 250
+	else
+		# desktop site
+		input tap 10 335
+		sleep 1
+		input tap 25 300
+		sleep 1
+		input tap 10 335
+		sleep 1
+		input tap 25 300
+	fi
 fi
 
 echo -e `date +%s`"\tClicked play" >> $LOG
@@ -100,18 +114,32 @@ echo -e `date +%s`"\tClicked play" >> $LOG
 #	3) we close the window
 if [ $PAUSE_AFTER -gt 0 ]; then
 	sleep $PAUSE_AFTER
-	if [ $MOBILE -eq 1 ]; then
-		# mobile site
-		input tap 200 250
-		sleep 1
-		input tap 20 400
-	else
-		# desktop site
-		input tap 10 335
-		sleep 1
-		input tap 25 300
-		sleep 1
+
+	if [ $VIMEO -eq 1 ]; then # Vimeo
+		if [ $MOBILE -eq 1 ]; then
+			# mobile site
+			input tap 240 400
+			sleep 1
+			input tap 20 780
+		else
+			# desktop site
+			echo "No support for Vimeo desktop site" >> $LOG
+		fi
+	else #YouTube
+		if [ $MOBILE -eq 1 ]; then
+			# mobile site
+			input tap 200 250
+			sleep 1
+			input tap 20 400
+		else
+			# desktop site
+			input tap 10 335
+			sleep 1
+			input tap 25 300
+			sleep 1
+		fi
 	fi
+
 	sleep $(($DURATION - $PAUSE_AFTER))
 
 elif [ $CLOSE_AFTER -gt 0 ]; then
