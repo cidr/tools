@@ -103,6 +103,8 @@ if [ $PAUSE_AFTER -gt 0 ]; then
 	if [ $MOBILE -eq 1 ]; then
 		# mobile site
 		input tap 200 250
+		sleep 1
+		input tap 20 400
 	else
 		# desktop site
 		input tap 10 335
