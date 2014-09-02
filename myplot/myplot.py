@@ -2,8 +2,9 @@ import matplotlib  # TODO :needed?
 import numpy as np # import needed?
 matplotlib.use('PDF')  # save plots as PDF
 font = {'size': 20,
-        'serif': 'Times New Roman',
-        'family': 'serif'}
+}
+        #'serif': 'Times New Roman',
+        #'family': 'serif'}
 matplotlib.rc('font', **font)
 
 # use type 1 fonts
@@ -101,7 +102,9 @@ def plot(xs, ys, labels=None, xlabel=None, ylabel=None, title=None,\
     if not show_x_tick_labels: ax.set_xticklabels([])
     if not show_y_tick_labels: ax.set_yticklabels([])
     if title: ax.set_title(title)
-    if axis: ax.set_axis(axis)
+    if axis: 
+        ax.set_xlim(axis[0:2])
+        ax.set_ylim(axis[2:4])
     if xscale: ax.set_xscale(xscale)
     if yscale: ax.set_yscale(yscale)
     if xlim: ax.set_xlim(xlim)
@@ -242,7 +245,7 @@ def stackplot(ys, sortindex=-1, **kwargs):
 
     x = np.arange(len(ys[0]))
 
-    return plot(x, ys, type='stackplot', **kwargs)
+    return plot(x, ys, xlim=(min(x), max(x)), type='stackplot', **kwargs)
     
 
 
