@@ -1,3 +1,0 @@
-[submodule "android_web_probe/pt4utils"]
-	path = android_web_probe/pt4utils
-	url = git@github.com:brownsys/pt4utils.git
